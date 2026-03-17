@@ -1,0 +1,31 @@
+#!/bin/bash
+set -euo pipefail
+
+# Install Docker
+dnf install -y docker
+systemctl enable --now docker
+usermod -aG docker ec2-user
+
+# Create OpenClaw directories
+mkdir -p /home/ec2-user/.openclaw/workspace
+chown -R ec2-user:ec2-user /home/ec2-user/.openclaw
+
+# Write initial config
+cat > /home/ec2-user/.openclaw/openclaw.json <<'CONF'
+{}
+CONF
+chown ec2-user:ec2-user /home/ec2-user/.openclaw/openclaw.json
+
+# Run OpenClaw gateway container
+docker run -d \
+  --name openclaw-gateway \
+  --restart unless-stopped \
+  -p 18789:18789 \
+%{ for key, value in llm_env_vars ~}
+  -e ${key}="${value}" \
+%{ endfor ~}
+  -e OPENCLAW_GATEWAY_BIND=lan \
+  -v /home/ec2-user/.openclaw:/home/node/.openclaw \
+  -v /home/ec2-user/.openclaw/workspace:/home/node/.openclaw/workspace \
+  ${openclaw_image} \
+  openclaw gateway --port 18789
