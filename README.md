@@ -65,16 +65,6 @@ Follow the prompts to connect WhatsApp, Telegram, Discord, or other channels. Se
 | `allowed_gateway_cidrs` | `["0.0.0.0/0"]` | CIDRs allowed to reach the gateway |
 | `openclaw_image` | `ghcr.io/openclaw/openclaw:latest` | Docker image to use |
 
-## Security notes
-
-This is a **minimal starter deployment**. Before using in production, consider:
-
-- Restricting `allowed_ssh_cidrs` and `allowed_gateway_cidrs` to your IP
-- Adding HTTPS via a load balancer or reverse proxy
-- Moving secrets to AWS Secrets Manager or SSM Parameter Store
-- Using a private subnet with a bastion host
-- Adding EBS snapshots or S3 backups for the workspace
-
 ## Tear down
 
 ```bash
