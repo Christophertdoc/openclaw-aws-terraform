@@ -21,7 +21,7 @@ docker run -d \
   --name openclaw-gateway \
   --restart unless-stopped \
   -p 18789:18789 \
-%{ for key, value in llm_env_vars ~}
+%{ for key, value in openclaw_env_vars ~}
   -e ${key}="${value}" \
 %{ endfor ~}
   -e OPENCLAW_GATEWAY_BIND=lan \

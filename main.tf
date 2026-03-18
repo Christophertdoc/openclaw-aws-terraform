@@ -83,7 +83,7 @@ resource "aws_instance" "openclaw" {
 
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {
     openclaw_image = var.openclaw_image
-    llm_env_vars   = var.llm_env_vars
+    openclaw_env_vars   = var.openclaw_env_vars
   })
 
   tags = {

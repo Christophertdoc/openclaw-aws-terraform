@@ -15,8 +15,8 @@ variable "key_name" {
   type        = string
 }
 
-variable "llm_env_vars" {
-  description = "Environment variables for your LLM provider (e.g. ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.)"
+variable "openclaw_env_vars" {
+  description = "Environment variables passed to the OpenClaw container (LLM keys, channel tokens, etc.)"
   type        = map(string)
   sensitive   = true
 }

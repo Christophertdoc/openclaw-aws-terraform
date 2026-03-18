@@ -35,7 +35,7 @@ chmod 400 ~/.ssh/openclaw-key.pem
 
 # 4. Create your variables file
 cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your key pair name and LLM API key(s)
+# Edit terraform.tfvars with your key pair name, LLM API key(s), and optionally a Telegram bot token
 
 # 5. Deploy
 terraform init
@@ -63,15 +63,54 @@ docker logs openclaw-gateway
 
 Then open `http://<public-ip>:18789` in your browser to access the OpenClaw dashboard.
 
-## Connecting chat channels
+## Setting up Telegram
 
-Once the gateway is running, SSH into the instance and run:
+### 1. Create a bot
+
+1. Open Telegram and message **@BotFather**
+2. Send `/newbot` and follow the prompts to name your bot
+3. Save the bot token (format: `123:abc`)
+
+### 2. Add the token to your config
+
+Add `TELEGRAM_BOT_TOKEN` to `openclaw_env_vars` in your `terraform.tfvars`:
+
+```hcl
+openclaw_env_vars = {
+  ANTHROPIC_API_KEY  = "sk-ant-..."
+  TELEGRAM_BOT_TOKEN = "123:abc..."
+}
+```
+
+Then deploy (or redeploy) with `terraform apply`. The bot will be ready on first boot — no manual SSH setup needed.
+
+### 3. Adjust bot settings (optional)
+
+Back in @BotFather:
+- `/setprivacy` — disable privacy mode if you want the bot to see all group messages
+- `/setjoingroups` — allow or deny the bot being added to groups
+
+### 4. Find your Telegram user ID
+
+Message your bot, then check the logs:
+
+```bash
+docker logs openclaw-gateway --tail 50
+```
+
+Look for `from.id` in the output — that's your numeric user ID, which you can use in allowlists.
+
+For more options (DM policies, group settings, webhooks, multi-account), see the [OpenClaw Telegram docs](https://docs.openclaw.ai/channels/telegram).
+
+## Connecting other channels
+
+For WhatsApp, Discord, iMessage, and others, SSH into the instance and run:
 
 ```bash
 docker exec -it openclaw-gateway openclaw channels login
 ```
 
-Follow the prompts to connect WhatsApp, Telegram, Discord, or other channels. See the [OpenClaw channel docs](https://docs.openclaw.ai/) for details.
+See the [OpenClaw channel docs](https://docs.openclaw.ai/) for details.
 
 ## Configuration
 
@@ -80,7 +119,7 @@ Follow the prompts to connect WhatsApp, Telegram, Discord, or other channels. Se
 | `aws_region` | `us-east-1` | AWS region |
 | `instance_type` | `t3.medium` | EC2 instance type (t3.medium recommended) |
 | `key_name` | — | Name of your EC2 key pair |
-| `llm_env_vars` | — | Map of LLM provider env vars (e.g. `{ ANTHROPIC_API_KEY = "..." }`) |
+| `openclaw_env_vars` | — | Map of env vars for the container (LLM keys, channel tokens, etc.) |
 | `allowed_ssh_cidrs` | `["0.0.0.0/0"]` | CIDRs allowed to SSH |
 | `allowed_gateway_cidrs` | `["0.0.0.0/0"]` | CIDRs allowed to reach the gateway |
 | `openclaw_image` | `ghcr.io/openclaw/openclaw:latest` | Docker image to use |

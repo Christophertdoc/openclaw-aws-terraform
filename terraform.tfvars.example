@@ -2,12 +2,13 @@ aws_region    = "us-east-1"
 instance_type = "t3.medium"
 key_name      = "openclaw-key"
 
-# Pass the API key(s) for whichever LLM provider you use.
-# OpenClaw supports Anthropic, OpenAI, Google, and others.
-llm_env_vars = {
-  ANTHROPIC_API_KEY = "sk-ant-..."
-  # OPENAI_API_KEY  = "sk-..."
-  # GOOGLE_API_KEY  = "..."
+# Environment variables passed to the OpenClaw container.
+# Add your LLM API key(s) and any channel tokens.
+openclaw_env_vars = {
+  ANTHROPIC_API_KEY  = "sk-ant-..."
+  # OPENAI_API_KEY   = "sk-..."
+  # GOOGLE_API_KEY   = "..."
+  # TELEGRAM_BOT_TOKEN = "123:abc..."
 }
 
 # Restrict access to your IP (recommended)
