@@ -8,3 +8,4 @@
 # Secrets
 terraform.tfvars
 *.auto.tfvars
+*.pem
