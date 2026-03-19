@@ -21,6 +21,12 @@ variable "openclaw_env_vars" {
   sensitive   = true
 }
 
+variable "telegram_allowed_users" {
+  description = "List of Telegram user IDs allowed to message the bot"
+  type        = list(string)
+  default     = []
+}
+
 variable "allowed_ssh_cidrs" {
   description = "CIDR blocks allowed to SSH into the instance"
   type        = list(string)

@@ -71,34 +71,34 @@ Then open `http://<public-ip>:18789` in your browser to access the OpenClaw dash
 2. Send `/newbot` and follow the prompts to name your bot
 3. Save the bot token (format: `123:abc`)
 
-### 2. Add the token to your config
+### 2. Find your Telegram user ID
 
-Add `TELEGRAM_BOT_TOKEN` to `openclaw_env_vars` in your `terraform.tfvars`:
+Deploy once without `telegram_allowed_users` set, then message your bot. It will reply with your user ID:
+
+```
+Your Telegram user id: 7088233388
+```
+
+### 3. Add the token and user ID to your config
+
+In your `terraform.tfvars`:
 
 ```hcl
 openclaw_env_vars = {
   ANTHROPIC_API_KEY  = "sk-ant-..."
   TELEGRAM_BOT_TOKEN = "123:abc..."
 }
+
+telegram_allowed_users = ["7088233388"]
 ```
 
-Then deploy (or redeploy) with `terraform apply`. The bot will be ready on first boot — no manual SSH setup needed.
+Then redeploy with `terraform apply`. Only the listed user IDs will be able to message the bot — no manual pairing needed.
 
-### 3. Adjust bot settings (optional)
+### 4. Adjust bot settings (optional)
 
 Back in @BotFather:
 - `/setprivacy` — disable privacy mode if you want the bot to see all group messages
 - `/setjoingroups` — allow or deny the bot being added to groups
-
-### 4. Find your Telegram user ID
-
-Message your bot, then check the logs:
-
-```bash
-docker logs openclaw-gateway --tail 50
-```
-
-Look for `from.id` in the output — that's your numeric user ID, which you can use in allowlists.
 
 For more options (DM policies, group settings, webhooks, multi-account), see the [OpenClaw Telegram docs](https://docs.openclaw.ai/channels/telegram).
 
@@ -120,9 +120,20 @@ See the [OpenClaw channel docs](https://docs.openclaw.ai/) for details.
 | `instance_type` | `t3.medium` | EC2 instance type (t3.medium recommended) |
 | `key_name` | — | Name of your EC2 key pair |
 | `openclaw_env_vars` | — | Map of env vars for the container (LLM keys, channel tokens, etc.) |
+| `telegram_allowed_users` | `[]` | Telegram user IDs allowed to message the bot |
 | `allowed_ssh_cidrs` | `["0.0.0.0/0"]` | CIDRs allowed to SSH |
 | `allowed_gateway_cidrs` | `["0.0.0.0/0"]` | CIDRs allowed to reach the gateway |
 | `openclaw_image` | `ghcr.io/openclaw/openclaw:latest` | Docker image to use |
+
+The agent model is auto-detected from the first LLM API key found in `openclaw_env_vars`:
+
+| Key | Model |
+|-----|-------|
+| `ANTHROPIC_API_KEY` | `anthropic/claude-sonnet-4-20250514` |
+| `OPENAI_API_KEY` | `openai/gpt-4o` |
+| `GOOGLE_API_KEY` | `google/gemini-2.5-pro` |
+
+To override, add `OPENCLAW_MODEL` to `openclaw_env_vars`.
 
 ## Tear down
 

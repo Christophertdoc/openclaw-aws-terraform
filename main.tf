@@ -30,6 +30,19 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+# --- Locals ---
+
+locals {
+  # Auto-detect the agent model from whichever API key is provided.
+  # First key found wins. Can be overridden via openclaw_env_vars["OPENCLAW_MODEL"].
+  agent_model = lookup(var.openclaw_env_vars, "OPENCLAW_MODEL", (
+    contains(keys(var.openclaw_env_vars), "ANTHROPIC_API_KEY") ? "anthropic/claude-sonnet-4-20250514" :
+    contains(keys(var.openclaw_env_vars), "OPENAI_API_KEY") ? "openai/gpt-4o" :
+    contains(keys(var.openclaw_env_vars), "GOOGLE_API_KEY") ? "google/gemini-2.5-pro" :
+    "anthropic/claude-sonnet-4-20250514"
+  ))
+}
+
 # --- Security Group ---
 
 resource "aws_security_group" "openclaw" {
@@ -82,8 +95,10 @@ resource "aws_instance" "openclaw" {
   }
 
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {
-    openclaw_image = var.openclaw_image
-    openclaw_env_vars   = var.openclaw_env_vars
+    openclaw_image         = var.openclaw_image
+    openclaw_env_vars      = var.openclaw_env_vars
+    agent_model            = local.agent_model
+    telegram_allowed_users = var.telegram_allowed_users
   })
 
   tags = {

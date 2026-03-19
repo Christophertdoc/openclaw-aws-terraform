@@ -11,8 +11,24 @@ mkdir -p /home/ec2-user/.openclaw/workspace
 chown -R ec2-user:ec2-user /home/ec2-user/.openclaw
 
 # Write initial config
-cat > /home/ec2-user/.openclaw/openclaw.json <<'CONF'
-{}
+cat > /home/ec2-user/.openclaw/openclaw.json <<CONF
+{
+  "gateway": {
+    "mode": "local"
+  },
+  "agents": {
+    "defaults": {
+      "model": "${agent_model}"
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "allowlist",
+      "allowFrom": [${join(", ", [for id in telegram_allowed_users : "\"${id}\""])}]
+    }
+  }
+}
 CONF
 chown ec2-user:ec2-user /home/ec2-user/.openclaw/openclaw.json
 
